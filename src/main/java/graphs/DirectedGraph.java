@@ -1,10 +1,13 @@
 package graphs;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DirectedGraph<V extends Identifiable, E> {
 
+    // Vertices are the nodes in the graph and edges are the directed connections between these nodes
     private final Map<String, V> vertices = new HashMap<>();
     private final Map<V, Map<V, E>> edges = new HashMap<>();
 

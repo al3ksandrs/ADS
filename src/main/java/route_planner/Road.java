@@ -1,5 +1,7 @@
 package route_planner;
 
+// The Road class represents a road segment between two junctions.
+// In the directed graph, roads are represented as Edges (connections) between junctions (Vertices).
 public class Road {
     private String name;        // the name of the road segment
     private double length;      // the fysical length of the segment in km

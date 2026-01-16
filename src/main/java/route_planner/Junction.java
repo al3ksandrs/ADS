@@ -2,11 +2,15 @@ package route_planner;
 
 import java.io.PrintStream;
 import java.util.Locale;
+import java.util.Objects;
 
-public class Junction
-        // TODO extend superclass and/or implement interfaces
+import graphs.Identifiable;
 
+// The junction class represents a town/crossing where multiple roads come together.
+// In the directed graph, junctions are represented as Vertices (nodes).
+public class Junction implements Identifiable
 {
+
     private String name;            // unique name of the junction
     private double locationX;       // RD x-coordinate in km
     private double locationY;       // RD y-coordinate in km
@@ -26,8 +30,6 @@ public class Junction
     }
 
     // TODO: more implementations as required for use with DirectedGraph, HashSet and/or HashMap
-
-
     // -----------------------------
     // Public getters and setters
     // -----------------------------
@@ -51,11 +53,9 @@ public class Junction
         return population;
     }
 
-
     // -----------------------------
     // Utility methods
     // -----------------------------
-
     /**
      * calculates the carthesion distance between two junctions
      *
@@ -70,7 +70,28 @@ public class Junction
         return Math.sqrt(dX * dX + dY * dY);
     }
 
+    // Returns the junction's name as its unique identifier.
+    @Override
+    public String getId() {
+        return name;
+    }
 
+    // To define when two Junction objects are considered equal.
+    // Otherwise two Junctions with the same name would be considered different objects.
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Junction junction = (Junction) o;
+        return Objects.equals(name, junction.name);
+    }
+
+    // Returns a hash code value for the junction based on its name.
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
+    
     /**
      * draws the junction onto a svg image with a given colour
      *
@@ -92,14 +113,17 @@ public class Junction
     }
 
     /**
-     * Draws the road segment onto a .svg image with the specified colour
-     * If no colour is provided, a default will be calculated on the basis of the maxSpeed
+     * Draws the road segment onto a .svg image with the specified colour If no
+     * colour is provided, a default will be calculated on the basis of the
+     * maxSpeed
      *
      * @param svgWriter
      * @param colour
      */
     public void svgDrawRoad(PrintStream svgWriter, Junction from, double width, String colour) {
-        if (from == null) return;
+        if (from == null) {
+            return;
+        }
         // accounts for the reversed y-direction of the svg coordinate system relative from RD-coordinates
         svgWriter.printf(Locale.ENGLISH, "<line x1='%.3f' y1='%.3f' x2='%.3f' y2='%.3f' stroke-width='%.3f' stroke='%s'/>\n",
                 this.getLocationX(), -this.getLocationY(),
@@ -108,24 +132,46 @@ public class Junction
     }
 
     /**
-     * Builder class for creating Junction objects in a readable and flexible way.
+     * Builder class for creating Junction objects in a readable and flexible
+     * way.
      */
     public static class Builder {
+
         private String name;
         private double locationX;
         private double locationY;
         private String province;
         private int population;
 
-        // TODO Add & implement builder methods
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
 
+        public Builder location(double locationX, double locationY) {
+            this.locationX = locationX;
+            this.locationY = locationY;
+            return this;
+        }
 
+        public Builder province(String province) {
+            this.province = province;
+            return this;
+        }
+
+        public Builder population(int population) {
+            this.population = population;
+            return this;
+        }
+
+        public Junction build() {
+            return new Junction(this);
+        }
     }
 
     // -----------------------------
     // Object overrides
     // -----------------------------
-
     @Override
     public String toString() {
         return name;
