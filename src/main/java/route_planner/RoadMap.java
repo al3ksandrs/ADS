@@ -1,14 +1,15 @@
 package route_planner;
 
-import graphs.DirectedGraph;
-import graphs.Searcher;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Scanner;
+
+import graphs.DirectedGraph;
+import graphs.Searcher;
 
 public class RoadMap extends DirectedGraph<Junction, Road> {
     public final String COLOR_OTHER = "black";
@@ -153,9 +154,8 @@ public class RoadMap extends DirectedGraph<Junction, Road> {
      */
     public void svgDrawMap(String resourceName, Searcher.DGPath<Junction> path) {
         try {
-            //Path resources = Paths.get(this.getClass().getResource("/").getPath());
-            //String svgPath = resources.toAbsolutePath() + "/" + resourceName;
-            String svgPath = new File(getClass().getResource("/").getPath()).getAbsolutePath() +
+            // toURI() to handle spaces in file paths (folder where i store this project has a space in its name)
+            String svgPath = new File(getClass().getResource("/").toURI()).getAbsolutePath() +
                     "/" + resourceName;
             PrintStream svgWriter = new PrintStream(svgPath);
 
@@ -187,7 +187,8 @@ public class RoadMap extends DirectedGraph<Junction, Road> {
             }
 
             svgWriter.println("</svg>");
-        } catch (FileNotFoundException e) {
+            svgWriter.close();
+        } catch (FileNotFoundException | URISyntaxException e) {
             e.printStackTrace();
         }
     }
