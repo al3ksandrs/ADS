@@ -1,11 +1,13 @@
 package graphs;
 
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 /**
  * Performance benchmarking utility for comparing Insertion Sort vs QuickSort algorithms.
@@ -28,8 +30,80 @@ public class SorterPerformanceTest {
 
     @Test
     void measureEfficiency() {
-        // TODO Benchmarking code here...
+        Sorter<Country> sorter = new Sorter<>();
+        // Comparator to sort by population
+        Comparator<Country> byPopulation = Comparator.comparingInt(Country::getPopulation)
+        .thenComparing(Country::getId);
 
+        System.out.printf("%-10s %-20s %-20s%n", "N", "Insertion sort (ms)", "Quick sort (ms)");
+        System.out.println("-------------------------------------------------------");
+
+        boolean runInsertion = true;
+        boolean runQuick = true;
+        long timeLimit = 20000; // 20 seconds
+
+        for (int n = 100; n <= 5_000_000; n *= 2) {
+            // Stops if both algorithms have exceeded the time limit
+            if (!runInsertion && !runQuick) {
+                break;
+            }
+
+            // Generates base dataset
+            List<Country> baseData = generateCountryDataset(n);
+
+            // Prepares validation set (Ground truth)
+            List<Country> validationSet = new ArrayList<>(baseData);
+            Collections.sort(validationSet, byPopulation);
+
+            String insertionTimeOutput = "-";
+            String quickTimeOutput = "-";
+
+            // Benchmark for insertion sort
+            if (runInsertion) {
+                List<Country> data = new ArrayList<>(baseData);
+                
+                System.gc(); // Cleans memory before run
+                long start = System.currentTimeMillis();
+                
+                sorter.insertionSort(data, byPopulation);
+                
+                long duration = System.currentTimeMillis() - start;
+
+                // Validates correctness
+                assertEquals(validationSet, data, "Insertion sort failed correctness check at N=" + n);
+
+                insertionTimeOutput = String.valueOf(duration);
+
+                // Stops if it takes too long
+                if (duration > timeLimit) {
+                    runInsertion = false;
+                }
+            }
+
+            // Benchmark for quick sort
+            if (runQuick) {
+                List<Country> data = new ArrayList<>(baseData);
+                
+                System.gc(); // Cleans memory before run
+                long start = System.currentTimeMillis();
+                
+                sorter.quickSort(data, byPopulation);
+                
+                long duration = System.currentTimeMillis() - start;
+
+                // Validates correctness
+                assertEquals(validationSet, data, "Quick sort failed correctness check at N=" + n);
+
+                quickTimeOutput = String.valueOf(duration);
+
+                // Stops if it takes too long
+                if (duration > timeLimit) {
+                    runQuick = false;
+                }
+            }
+
+            System.out.printf("%-10d %-20s %-20s%n", n, insertionTimeOutput, quickTimeOutput);
+        }
     }
 
 
